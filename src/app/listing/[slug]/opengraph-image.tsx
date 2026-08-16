@@ -41,7 +41,8 @@ export default async function Image({
             height={630}
             style={{
               position: "absolute",
-              inset: 0,
+              top: 0,
+              left: 0,
               width: "1200px",
               height: "630px",
               objectFit: "cover",
@@ -51,7 +52,10 @@ export default async function Image({
           <div
             style={{
               position: "absolute",
-              inset: 0,
+              top: 0,
+              left: 0,
+              width: "1200px",
+              height: "630px",
               display: "flex",
               background: "linear-gradient(135deg, #b34d1f 0%, #d9622b 100%)",
             }}
@@ -62,10 +66,13 @@ export default async function Image({
         <div
           style={{
             position: "absolute",
-            inset: 0,
+            top: 0,
+            left: 0,
+            width: "1200px",
+            height: "630px",
             display: "flex",
             background:
-              "linear-gradient(0deg, rgba(20,10,5,0.92) 0%, rgba(20,10,5,0.55) 42%, rgba(20,10,5,0.05) 68%)",
+              "linear-gradient(0deg, rgba(15,8,4,0.96) 0%, rgba(15,8,4,0.85) 32%, rgba(15,8,4,0.35) 58%, rgba(15,8,4,0) 78%)",
           }}
         />
 
@@ -125,6 +132,7 @@ export default async function Image({
               color: "#ffffff",
               lineHeight: 1.08,
               letterSpacing: -1,
+              textShadow: "0 2px 18px rgba(0,0,0,0.85)",
             }}
           >
             {name}
@@ -137,6 +145,7 @@ export default async function Image({
                 fontSize: 30,
                 fontWeight: 600,
                 color: "#f5e4d8",
+                textShadow: "0 2px 14px rgba(0,0,0,0.85)",
               }}
             >
               {address.length > 60 ? address.slice(0, 57) + "…" : address}
