@@ -79,19 +79,20 @@ async function loadCsvText(): Promise<string> {
   return fs.readFileSync(filePath, "utf-8");
 }
 
-let cache: { data: Listing[]; ts: number } | null = null;
-const CACHE_MS = 5 * 60 * 1000;
-
+// Note: no extra in-memory cache here on top of the fetch-level
+// `next: { revalidate: 3600 }` in loadCsvText(). A previous version kept a
+// separate module-level cache of the transformed listings, which could
+// outlive an on-demand revalidation of an individual page (e.g. after
+// fixing a bad slug) inside the same warm serverless instance, serving a
+// stale/inconsistent snapshot. Next's own fetch cache is the single source
+// of truth for freshness here.
 export async function getAllListings(): Promise<Listing[]> {
-  if (cache && Date.now() - cache.ts < CACHE_MS) return cache.data;
   const csvText = await loadCsvText();
   const parsed = Papa.parse<Record<string, string>>(csvText, {
     header: true,
     skipEmptyLines: true,
   });
-  const data = rowsToListings(parsed.data);
-  cache = { data, ts: Date.now() };
-  return data;
+  return rowsToListings(parsed.data);
 }
 
 export async function getListingBySlug(slug: string): Promise<Listing | undefined> {
