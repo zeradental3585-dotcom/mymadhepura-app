@@ -23,7 +23,9 @@ export async function generateMetadata({
     openGraph: {
       title: listing.name,
       description: listing.description,
-      images: listing.imageUrl ? [listing.imageUrl] : undefined,
+      // images intentionally omitted: the listing/[slug]/opengraph-image.tsx
+      // file convention generates a branded, mobile-safe share card instead
+      // of using the raw uploaded photo directly.
     },
   };
 }

@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "http", hostname: "mymadhepura.com" },
       { protocol: "https", hostname: "mymadhepura.com" },
+      // Original WordPress media library. The apex domain now points at
+      // Vercel, so listing photos are served from this subdomain, which
+      // is pointed directly at the old Hostinger WordPress install.
+      { protocol: "https", hostname: "oldmedia.mymadhepura.com" },
+      { protocol: "http", hostname: "oldmedia.mymadhepura.com" },
     ],
   },
 
