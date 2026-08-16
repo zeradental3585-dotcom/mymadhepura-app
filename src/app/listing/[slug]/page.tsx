@@ -4,6 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+// Bounds how long a stale response (including a wrongly-cached 404 from
+// before a data fix, e.g. a corrected slug) can stick around. Matches the
+// listings data's own fetch revalidation window in src/lib/data.ts.
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   const all = await getAllListings();
   return all.map((l) => ({ slug: l.slug }));
