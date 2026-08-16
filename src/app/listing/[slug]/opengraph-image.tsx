@@ -9,8 +9,13 @@ export async function generateStaticParams() {
   return all.map((l) => ({ slug: l.slug }));
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const listing = await getListingBySlug(params.slug);
+export default async function Image({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const listing = await getListingBySlug(slug);
   const name = listing?.name ?? "myMadhepura";
   const category = listing?.category ?? "";
   const address = listing?.address ?? "";
