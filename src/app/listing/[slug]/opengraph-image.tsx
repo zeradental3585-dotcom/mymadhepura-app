@@ -1,19 +1,25 @@
 import { ImageResponse } from "next/og";
+import sharp from "sharp";
 import { getAllListings, getListingBySlug } from "@/lib/data";
 
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+// Served as JPEG (see re-encode step at the bottom), not PNG — a raw PNG of
+// a full photo background from next/og regularly comes out at 1-1.5MB, well
+// over WhatsApp's ~300KB link-preview size limit, which makes WhatsApp
+// silently drop the image and show no preview at all. Re-encoding the same
+// rendered image to JPEG brings this down to roughly 60-120KB.
+export const contentType = "image/jpeg";
 
 export async function generateStaticParams() {
   const all = await getAllListings();
   return all.map((l) => ({ slug: l.slug }));
 }
 
-export default async function Image({
+async function renderPng({
   params,
 }: {
   params: Promise<{ slug: string }>;
-}) {
+}): Promise<Response> {
   const { slug } = await params;
   const listing = await getListingBySlug(slug);
   const name = listing?.name ?? "myMadhepura";
@@ -156,4 +162,18 @@ export default async function Image({
     ),
     { ...size }
   );
+}
+
+export default async function Image(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Response> {
+  const pngResponse = await renderPng(props);
+  const pngBuffer = Buffer.from(await pngResponse.arrayBuffer());
+  const jpegBuffer = await sharp(pngBuffer).jpeg({ quality: 78 }).toBuffer();
+  return new Response(new Uint8Array(jpegBuffer), {
+    headers: {
+      "Content-Type": "image/jpeg",
+      "Cache-Control": "public, immutable, no-transform, max-age=31536000",
+    },
+  });
 }

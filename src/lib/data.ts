@@ -16,12 +16,30 @@ function slugify(input: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
+// Some rows (a WordPress export artifact) store the Slug column as an
+// already percent-encoded UTF-8 string (e.g. "%e0%a4%86%e0%a4%a6...")
+// instead of plain text. If used as-is for a Next.js dynamic route slug,
+// Next.js re-encodes the literal "%" characters, producing a URL that never
+// matches a normal incoming request and 404s. Decode it once here so the
+// raw text is used consistently everywhere.
+function normalizeSlug(raw: string): string {
+  const trimmed = raw.trim();
+  if (/^(%[0-9a-fA-F]{2})+/.test(trimmed)) {
+    try {
+      return decodeURIComponent(trimmed);
+    } catch {
+      return trimmed;
+    }
+  }
+  return trimmed;
+}
+
 function rowsToListings(rows: Record<string, string>[]): Listing[] {
   const seenSlugs = new Map<string, number>();
   return rows
     .filter((r) => r.Name && r.Name.trim())
     .map((r) => {
-      let slug = (r.Slug || slugify(r.Name)).trim();
+      let slug = normalizeSlug(r.Slug || slugify(r.Name));
       if (!slug) slug = slugify(r.Name);
       const count = seenSlugs.get(slug) || 0;
       seenSlugs.set(slug, count + 1);
