@@ -34,13 +34,31 @@ function normalizeSlug(raw: string): string {
   return trimmed;
 }
 
+// Non-ASCII (e.g. Devanagari) route slugs hit a static-generation matching
+// issue in the current Next.js version: the listing is generated and its
+// data is correct, but the pre-rendered page for that exact path 404s on
+// every request. Rather than depend on a framework fix, keep every route
+// slug ASCII. Prefer a slugified version of the name; if the name has no
+// Latin characters (as with the Devanagari listings above), fall back to
+// the address, then the phone number, so the slug is still readable and
+// deterministic instead of an opaque id.
+function asciiSlug(r: Record<string, string>): string {
+  const fromName = slugify(r.Name || "");
+  if (fromName) return fromName;
+  const fromAddress = slugify(r.Address || "");
+  if (fromAddress) return fromAddress;
+  const digitsOnly = (r.Phone || "").replace(/\D+/g, "");
+  return digitsOnly ? `listing-${digitsOnly}` : "listing";
+}
+
 function rowsToListings(rows: Record<string, string>[]): Listing[] {
   const seenSlugs = new Map<string, number>();
   return rows
     .filter((r) => r.Name && r.Name.trim())
     .map((r) => {
-      let slug = normalizeSlug(r.Slug || slugify(r.Name));
-      if (!slug) slug = slugify(r.Name);
+      let slug = normalizeSlug(r.Slug || "");
+      // eslint-disable-next-line no-control-regex
+      if (!slug || /[^\x00-\x7F]/.test(slug)) slug = asciiSlug(r);
       const count = seenSlugs.get(slug) || 0;
       seenSlugs.set(slug, count + 1);
       if (count > 0) slug = `${slug}-${count + 1}`;
