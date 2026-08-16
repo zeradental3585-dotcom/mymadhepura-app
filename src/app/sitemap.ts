@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllListings } from "@/lib/data";
+import { BLOG_POSTS } from "@/lib/blogPosts";
 import { SITE } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -25,5 +26,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: l.dateAdded ? new Date(l.dateAdded) : new Date(),
   }));
 
-  return [...staticPages, ...listingPages];
+  const blogPages = BLOG_POSTS.map((p) => ({
+    url: `${SITE.url}/blog/${p.slug}`,
+    lastModified: new Date(p.date),
+  }));
+
+  return [...staticPages, ...listingPages, ...blogPages];
 }
