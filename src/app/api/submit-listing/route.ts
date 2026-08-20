@@ -21,15 +21,32 @@ interface SubmitBody {
   instagram?: string;
   website?: string;
   imageDataUrl?: string; // data:image/jpeg;base64,....
+  company?: string; // honeypot — must stay empty
+  formLoadedAt?: number; // client timestamp when the form mounted
 }
 
 function isValidDataUrl(value: string): boolean {
   return /^data:image\/(png|jpe?g|webp);base64,/.test(value);
 }
 
+// Below this, a submission is treated as a bot rather than a fast human.
+const MIN_FILL_TIME_MS = 2500;
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as SubmitBody;
+
+    // Anti-spam checks, before any real work happens. Both fail silently
+    // with a fake success response — telling a bot "rejected" just teaches
+    // it to adapt, whereas a fake 200 gives it nothing to react to.
+    if ((body.company || "").trim() !== "") {
+      console.warn("submit-listing: honeypot triggered, dropping silently");
+      return NextResponse.json({ ok: true });
+    }
+    if (typeof body.formLoadedAt === "number" && Date.now() - body.formLoadedAt < MIN_FILL_TIME_MS) {
+      console.warn("submit-listing: submitted too fast, dropping silently");
+      return NextResponse.json({ ok: true });
+    }
 
     const name = (body.name || "").trim();
     const category = (body.category || "").trim();
