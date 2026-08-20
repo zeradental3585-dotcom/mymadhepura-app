@@ -118,6 +118,77 @@ export async function getListingBySlug(slug: string): Promise<Listing | undefine
   return all.find((l) => l.slug === slug);
 }
 
+export interface PendingSubmission {
+  rowNumber: number; // 1-based Google Sheet row (header is row 1)
+  name: string;
+  category: string;
+  description: string;
+  address: string;
+  phone: string;
+  whatsapp: string;
+  businessHours: string;
+  weeklyOff: string;
+  topProducts: string;
+  facebook: string;
+  instagram: string;
+  website: string;
+  imageUrl: string;
+  dateAdded: string;
+}
+
+// Used only by the /admin review dashboard. Deliberately bypasses the
+// revalidate:3600 fetch cache that loadCsvText() uses for public pages —
+// after an approve/reject the admin needs to see the sheet's true current
+// state immediately, not a stale hour-old snapshot.
+async function loadCsvTextFresh(): Promise<string> {
+  if (SHEET_CSV_URL) {
+    const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+    if (res.ok) return res.text();
+  }
+  const filePath = path.join(process.cwd(), "src/data/listings.csv");
+  return fs.readFileSync(filePath, "utf-8");
+}
+
+export async function getPendingSubmissions(): Promise<PendingSubmission[]> {
+  const csvText = await loadCsvTextFresh();
+  const parsed = Papa.parse<Record<string, string>>(csvText, {
+    header: true,
+    skipEmptyLines: true,
+  });
+
+  const pending: PendingSubmission[] = [];
+  parsed.data.forEach((r, idx) => {
+    if (!r.Name || !r.Name.trim()) return;
+    // Only rows the submission pipeline actually marked Hidden are
+    // "pending" — matches exactly what the Apps Script writes for new
+    // submissions, and avoids misreading legacy rows with unrelated blank
+    // Status cells as needing review.
+    const status = (r.Status || "").trim().toLowerCase();
+    if (status !== "hidden") return;
+
+    pending.push({
+      rowNumber: idx + 2, // +1 for the header row, +1 for 0-based index
+      name: r.Name.trim(),
+      category: r.Category?.trim() || "",
+      description: r.Description?.trim() || "",
+      address: r.Address?.trim() || "",
+      phone: r.Phone?.trim() || "",
+      whatsapp: r.WhatsApp?.trim() || "",
+      businessHours: r.BusinessHours?.trim() || "",
+      weeklyOff: r.WeeklyOff?.trim() || "",
+      topProducts: r.TopProducts?.trim() || "",
+      facebook: r.Facebook?.trim() || "",
+      instagram: r.Instagram?.trim() || "",
+      website: r.Website?.trim() || "",
+      imageUrl: r.ImageURL?.trim() || "",
+      dateAdded: r.DateAdded?.trim() || "",
+    });
+  });
+
+  // Newest submissions first.
+  return pending.reverse();
+}
+
 export async function getCategories(): Promise<{ name: string; count: number }[]> {
   const all = await getAllListings();
   const counts = new Map<string, number>();
