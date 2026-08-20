@@ -2,6 +2,15 @@
 
 import { useRef, useState } from "react";
 
+// Anti-spam: this form has no login, so it's an open target for bots.
+// Two lightweight, invisible-to-humans checks are layered on top of the
+// existing manual-review step:
+//  1. Honeypot field ("company") — hidden from real users via CSS, but
+//     most bots fill in every input they find. Any value here means bot.
+//  2. Minimum fill time — a hidden timestamp set on mount lets the API
+//     reject submissions that arrive suspiciously fast (a human can't
+//     read + fill this form in under ~2.5s).
+
 const MAX_DIMENSION = 1600;
 const JPEG_QUALITY = 0.82;
 
@@ -52,6 +61,7 @@ export default function ListingForm({ categories }: { categories: string[] }) {
   const [customCategory, setCustomCategory] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [formLoadedAt] = useState(() => Date.now());
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -109,6 +119,8 @@ export default function ListingForm({ categories }: { categories: string[] }) {
       instagram: (data.get("instagram") as string) || "",
       website: (data.get("website") as string) || "",
       imageDataUrl: imageDataUrl || undefined,
+      company: (data.get("company") as string) || "",
+      formLoadedAt,
     };
 
     try {
@@ -161,6 +173,17 @@ export default function ListingForm({ categories }: { categories: string[] }) {
       onSubmit={handleSubmit}
       className="rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm sm:p-8"
     >
+      {/* Honeypot: invisible to real visitors, but most spam bots fill in
+          every field they find. Moved off-screen rather than display:none,
+          since some bots specifically skip display:none fields. */}
+      <div
+        aria-hidden="true"
+        style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0 }}
+      >
+        <label htmlFor="company">Company</label>
+        <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className={LABEL_CLASS} htmlFor="name">
