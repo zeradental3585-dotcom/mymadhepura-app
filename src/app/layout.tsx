@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import GoogleAdsense from "@/components/GoogleAdsense";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans">
         <GoogleAnalytics />
+        <GoogleAdsense />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
