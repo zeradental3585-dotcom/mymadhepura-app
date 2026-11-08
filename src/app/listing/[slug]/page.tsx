@@ -49,6 +49,10 @@ export default async function ListingPage({
   if (!listing) notFound();
 
   const phone = cleanPhone(listing.phone);
+  const wa = cleanPhone(listing.whatsapp);
+  const claimText = encodeURIComponent(
+    `Hi, I want to claim / update the listing "${listing.name}" on myMadhepura (mymadhepura.com). Page: https://mymadhepura.com/listing/${listing.slug}`
+  );
   const jsonLd = listingJsonLd(listing);
   const related = (await getAllListings())
     .filter((l) => l.category === listing.category && l.slug !== listing.slug)
@@ -104,9 +108,9 @@ export default async function ListingPage({
                 </div>
               </a>
             )}
-            {listing.whatsapp && (
+            {wa && (
               <a
-                href={`https://wa.me/91${listing.whatsapp.replace(/^0+/, "")}`}
+                href={`https://wa.me/91${wa.replace(/\D+/g, "").replace(/^(91|0)(?=\d{10}$)/, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 rounded-xl border border-black/5 bg-background p-4 hover:border-brand"
@@ -114,7 +118,7 @@ export default async function ListingPage({
                 <span className="text-xl">💬</span>
                 <div>
                   <p className="text-xs text-foreground/50">WhatsApp</p>
-                  <p className="font-semibold">{listing.whatsapp}</p>
+                  <p className="font-semibold">{wa}</p>
                 </div>
               </a>
             )}
@@ -171,6 +175,23 @@ export default async function ListingPage({
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-6 flex flex-col items-start justify-between gap-3 rounded-2xl border border-dashed border-brand/40 bg-brand-light/50 p-5 sm:flex-row sm:items-center">
+        <div>
+          <p className="font-semibold text-foreground">Is this your business?</p>
+          <p className="text-sm text-foreground/60">
+            Claim this listing to keep your phone, hours and photos up to date.
+          </p>
+        </div>
+        <a
+          href={`https://wa.me/919835102324?text=${claimText}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+        >
+          Claim this business
+        </a>
       </div>
 
       {related.length > 0 && (
