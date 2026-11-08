@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { looksLocal, looksSpammy } from "@/lib/geo";
 
 interface PendingSubmission {
   rowNumber: number;
@@ -40,7 +41,10 @@ export default function AdminDashboard() {
       }
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json?.error || "Could not load submissions.");
-      setItems(json.pending);
+      // Genuine local submissions first; likely spam sinks to the bottom.
+      const score = (p: PendingSubmission) =>
+        (looksLocal(p.address, p.name) ? 2 : 0) - (looksSpammy(p.name, p.description) ? 3 : 0);
+      setItems([...(json.pending as PendingSubmission[])].sort((a, b) => score(b) - score(a)));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     }
@@ -151,6 +155,11 @@ export default function AdminDashboard() {
               <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-foreground shadow-sm">
                 {item.category || "Uncategorized"}
               </span>
+              {(!looksLocal(item.address, item.name) || looksSpammy(item.name, item.description)) && (
+                <span className="absolute right-3 top-3 rounded-full bg-red-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                  {looksSpammy(item.name, item.description) ? "Likely spam" : "Outside Madhepura"}
+                </span>
+              )}
             </div>
 
             <div className="flex flex-1 flex-col p-5">
