@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { cleanPhone, listingJsonLd } from "@/lib/seo";
+import { categorySlug } from "@/lib/categories";
+import ListingCard from "@/components/ListingCard";
 
 // Bounds how long a stale response (including a wrongly-cached 404 from
 // before a data fix, e.g. a corrected slug) can stick around. Matches the
@@ -48,6 +50,9 @@ export default async function ListingPage({
 
   const phone = cleanPhone(listing.phone);
   const jsonLd = listingJsonLd(listing);
+  const related = (await getAllListings())
+    .filter((l) => l.category === listing.category && l.slug !== listing.slug)
+    .slice(0, 3);
 
   const mapsUrl =
     listing.latitude && listing.longitude
@@ -65,7 +70,7 @@ export default async function ListingPage({
       <nav className="text-sm text-foreground/50">
         <Link href="/listings" className="hover:text-brand">Listings</Link>
         <span className="mx-1">/</span>
-        <Link href={`/listings?category=${encodeURIComponent(listing.category)}`} className="hover:text-brand">
+        <Link href={`/category/${categorySlug(listing.category)}`} className="hover:text-brand">
           {listing.category}
         </Link>
       </nav>
@@ -167,6 +172,25 @@ export default async function ListingPage({
           )}
         </div>
       </div>
+
+      {related.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-lg font-bold text-foreground">
+            More {listing.category} in Madhepura
+          </h2>
+          <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-3">
+            {related.map((l) => (
+              <ListingCard key={l.slug} listing={l} />
+            ))}
+          </div>
+          <Link
+            href={`/category/${categorySlug(listing.category)}`}
+            className="mt-4 inline-block text-sm font-semibold text-brand hover:underline"
+          >
+            View all {listing.category} listings &rarr;
+          </Link>
+        </section>
+      )}
     </div>
   );
 }
