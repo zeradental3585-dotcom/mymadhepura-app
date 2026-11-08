@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
-import { getAllListings } from "@/lib/data";
+import { getAllListings, getCategories } from "@/lib/data";
+import { categorySlug } from "@/lib/categories";
 import { BLOG_POSTS } from "@/lib/blogPosts";
 import { SITE } from "@/lib/site";
 import { parseSheetDate } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const listings = await getAllListings();
+  const categories = await getCategories();
 
   const staticPages = [
     "",
@@ -37,5 +39,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(p.date),
   }));
 
-  return [...staticPages, ...listingPages, ...blogPages];
+  const categoryPages = categories.map((c) => ({
+    url: `${SITE.url}/category/${categorySlug(c.name)}`,
+    lastModified: new Date(),
+  }));
+
+  return [...staticPages, ...categoryPages, ...listingPages, ...blogPages];
 }
