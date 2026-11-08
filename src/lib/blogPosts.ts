@@ -50,6 +50,38 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "2026-08-16",
     category: "For Businesses",
   },
+  {
+    slug: "wedding-and-event-planning-in-madhepura",
+    title: "Wedding & Event Planning in Madhepura: Venues, Hotels, Catering & More",
+    description:
+      "A step-by-step guide to planning a wedding or family function in Madhepura, with local halls, hotels, sweets, decoration and beauty services.",
+    date: "2026-11-08",
+    category: "Local Guide",
+  },
+  {
+    slug: "banks-and-government-offices-in-madhepura",
+    title: "Banks & Government Offices in Madhepura: Where to Go and What to Carry",
+    description:
+      "Main bank branches, banking service centres and district offices in Madhepura, with practical tips for smoother visits.",
+    date: "2026-11-08",
+    category: "Local Guide",
+  },
+  {
+    slug: "buying-and-servicing-a-vehicle-in-madhepura",
+    title: "Buying & Servicing a Vehicle in Madhepura: Showrooms, Garages & Parts",
+    description:
+      "Where to buy a bike or car, find genuine parts, get repairs and fit accessories in Madhepura, plus tips before you pay.",
+    date: "2026-11-08",
+    category: "Automobile",
+  },
+  {
+    slug: "coaching-and-exam-preparation-in-madhepura",
+    title: "Coaching & Exam Preparation in Madhepura: Biology, Physics, Maths & More",
+    description:
+      "Local coaching centres grouped by subject, plus the questions to ask before enrolling your child.",
+    date: "2026-11-08",
+    category: "Education",
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
