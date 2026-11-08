@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { looksLocal, looksSpammy } from "@/lib/geo";
 
 interface PendingSubmission {
@@ -104,6 +105,12 @@ export default function AdminDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href="/admin/quick-add"
+            className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-dark"
+          >
+            + Quick Add
+          </Link>
           <button
             onClick={load}
             className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold text-foreground transition hover:border-brand hover:text-brand"
