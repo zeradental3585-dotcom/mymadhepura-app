@@ -57,11 +57,11 @@ export default function QuickAddForm() {
   const [seoTitle, setSeoTitle] = useState("");
   const [image, setImage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [hint, setHint] = useState("");
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
-  function handlePaste(value: string) {
-    setPaste(value);
-    const p = parseMapsText(value);
+  function applyParsed(text: string) {
+    const p = parseMapsText(text);
     if (p.name) setName(p.name);
     if (p.address) setAddress(p.address);
     if (p.phone) {
@@ -70,6 +70,42 @@ export default function QuickAddForm() {
     }
     if (p.latitude) setLatitude(p.latitude);
     if (p.longitude) setLongitude(p.longitude);
+    if (!text.trim()) {
+      setHint("");
+    } else if (!p.address || !p.phone) {
+      setHint(
+        "A Maps link only gives the name and map position. Open the place in Google Maps, copy the address and phone number text from the panel, and paste it here too. Or type them in below."
+      );
+    } else {
+      setHint("");
+    }
+    return p;
+  }
+
+  async function handlePaste(value: string) {
+    setPaste(value);
+    applyParsed(value);
+
+    // Short links (maps.app.goo.gl/...) hide the place name and position;
+    // ask the server to expand them to the full link and re-read that.
+    const short = value.match(/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps)\/\S+/i);
+    if (!short) return;
+    setHint("Reading the Maps link...");
+    try {
+      const res = await fetch("/api/admin/resolve-map", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: short[0] }),
+      });
+      const json = await res.json().catch(() => null);
+      if (res.ok && json?.ok && json.url) {
+        applyParsed(value + "\n" + json.url);
+      } else {
+        applyParsed(value);
+      }
+    } catch {
+      applyParsed(value);
+    }
   }
 
   function toggleService(s: string) {
@@ -195,6 +231,7 @@ export default function QuickAddForm() {
           placeholder="Paste name, address, phone and/or the Maps link"
           className={input + " mt-3"}
         />
+        {hint && <p className="mt-2 text-xs text-amber-700">{hint}</p>}
       </section>
 
       <section className="mt-5 grid gap-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm sm:grid-cols-2">
