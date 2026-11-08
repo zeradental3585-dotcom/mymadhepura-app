@@ -64,6 +64,18 @@ export function parseMapsText(text: string): ParsedMaps {
     lines.find((l) => l !== out.name && (l.match(/,/g) || []).length >= 2) ||
     "";
   out.address = out.address.replace(/^address:\s*/i, "");
+
+  // A full Maps link carries the place name in its path: /maps/place/Name+Here/@lat,lng
+  if (!out.name) {
+    const place = text.match(/\/maps\/place\/([^/@?\s]+)/);
+    if (place) {
+      try {
+        out.name = decodeURIComponent(place[1].replace(/\+/g, " ")).trim();
+      } catch {
+        out.name = place[1].replace(/\+/g, " ").trim();
+      }
+    }
+  }
   return out;
 }
 
