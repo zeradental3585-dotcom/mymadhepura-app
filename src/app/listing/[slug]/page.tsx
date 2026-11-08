@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { cleanPhone, listingJsonLd } from "@/lib/seo";
 
 // Bounds how long a stale response (including a wrongly-cached 404 from
 // before a data fix, e.g. a corrected slug) can stick around. Matches the
@@ -25,6 +26,7 @@ export async function generateMetadata({
   return {
     title: listing.name,
     description: listing.description || `${listing.name} - ${listing.category} in Madhepura, Bihar.`,
+    alternates: { canonical: `/listing/${listing.slug}` },
     openGraph: {
       title: listing.name,
       description: listing.description,
@@ -44,6 +46,9 @@ export default async function ListingPage({
   const listing = await getListingBySlug(slug);
   if (!listing) notFound();
 
+  const phone = cleanPhone(listing.phone);
+  const jsonLd = listingJsonLd(listing);
+
   const mapsUrl =
     listing.latitude && listing.longitude
       ? `https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`
@@ -53,6 +58,10 @@ export default async function ListingPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav className="text-sm text-foreground/50">
         <Link href="/listings" className="hover:text-brand">Listings</Link>
         <span className="mx-1">/</span>
@@ -81,12 +90,12 @@ export default async function ListingPage({
           )}
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {listing.phone && (
-              <a href={`tel:${listing.phone}`} className="flex items-center gap-3 rounded-xl border border-black/5 bg-background p-4 hover:border-brand">
+            {phone && (
+              <a href={`tel:${phone}`} className="flex items-center gap-3 rounded-xl border border-black/5 bg-background p-4 hover:border-brand">
                 <span className="text-xl">📞</span>
                 <div>
                   <p className="text-xs text-foreground/50">Call</p>
-                  <p className="font-semibold">{listing.phone}</p>
+                  <p className="font-semibold">{phone}</p>
                 </div>
               </a>
             )}
