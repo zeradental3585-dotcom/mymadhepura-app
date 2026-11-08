@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
+import { looksLocal, looksIndianPhone, looksSpammy } from "@/lib/geo";
 
 export const runtime = "nodejs";
 
@@ -56,6 +57,30 @@ export async function POST(req: Request) {
     if (!name || !category || !address || !phone) {
       return NextResponse.json(
         { ok: false, error: "Business name, category, address, and phone are required." },
+        { status: 400 }
+      );
+    }
+
+    // Directory is for Madhepura district only. Spam-looking content is dropped
+    // silently; clearly out-of-area or non-Indian-phone submissions get a
+    // clear message so genuine owners understand why.
+    if (looksSpammy(name, body.description || "", body.topProducts || "", body.website || "")) {
+      console.warn("submit-listing: spam keywords, dropping silently");
+      return NextResponse.json({ ok: true });
+    }
+    if (!looksLocal(address, name)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "We only list businesses located in Madhepura district, Bihar. Please include your Madhepura area or PIN code (852xxx) in the address.",
+        },
+        { status: 400 }
+      );
+    }
+    if (!looksIndianPhone(phone)) {
+      return NextResponse.json(
+        { ok: false, error: "Please enter a valid Indian mobile number (10 digits)." },
         { status: 400 }
       );
     }
