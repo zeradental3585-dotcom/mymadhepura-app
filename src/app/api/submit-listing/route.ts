@@ -21,6 +21,8 @@ interface SubmitBody {
   facebook?: string;
   instagram?: string;
   website?: string;
+  latitude?: string;
+  longitude?: string;
   imageDataUrl?: string; // data:image/jpeg;base64,....
   company?: string; // honeypot — must stay empty
   formLoadedAt?: number; // client timestamp when the form mounted
@@ -151,6 +153,8 @@ export async function POST(req: Request) {
       facebook: (body.facebook || "").trim(),
       instagram: (body.instagram || "").trim(),
       website: (body.website || "").trim(),
+      latitude: /^-?\d{1,3}\.\d+$/.test((body.latitude || "").trim()) ? (body.latitude || "").trim() : "",
+      longitude: /^-?\d{1,3}\.\d+$/.test((body.longitude || "").trim()) ? (body.longitude || "").trim() : "",
       imageUrl,
       dateAdded: new Date().toISOString().slice(0, 10),
     };
