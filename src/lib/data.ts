@@ -65,7 +65,7 @@ function rowsToListings(rows: Record<string, string>[]): Listing[] {
       return {
         name: r.Name?.trim() || "",
         category: r.Category?.trim() || "Others",
-        description: r.Description?.trim() || "",
+        description: (r.Description || "").replace(/<br\s*\/?>/gi,"\n").replace(/<\/(p|h[1-6]|li|div)>/gi,"\n").replace(/<[^>]+>/g,"").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,"\"").replace(/&#0?39;/g,"'").replace(/\n{3,}/g,"\n\n").trim(),
         address: r.Address?.trim() || "",
         phone: r.Phone?.trim() || "",
         whatsapp: r.WhatsApp?.trim() || "",
