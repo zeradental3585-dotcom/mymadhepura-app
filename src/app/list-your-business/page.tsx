@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCategories } from "@/lib/data";
 import ListingForm from "@/components/ListingForm";
+import VideoGuide from "@/components/VideoGuide";
 
 export const metadata: Metadata = {
   title: "List Your Business",
@@ -21,6 +22,11 @@ export default async function ListYourBusinessPage() {
           and every submission is reviewed before it goes live so the directory
           stays spam-free.
         </p>
+      </div>
+
+      <div className="mt-8">
+        <p className="mb-3 text-center text-lg font-bold text-foreground">📺 फॉर्म भरना नहीं आता? यह वीडियो देखें</p>
+        <VideoGuide />
       </div>
 
       <div className="mt-8">
