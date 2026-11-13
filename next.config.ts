@@ -34,6 +34,11 @@ const nextConfig: NextConfig = {
       { source: "/my-account", destination: "/", permanent: true },
       { source: "/my-account/:path*", destination: "/", permanent: true },
       { source: "/sample-page", destination: "/", permanent: true },
+      // Legacy WordPress pagination/category URLs still crawled by Google
+      { source: "/listings/page/:n", destination: "/listings", permanent: true },
+      { source: "/listing-category/:slug/page/:n", destination: "/category/:slug", permanent: true },
+      { source: "/listing-category/:slug", destination: "/category/:slug", permanent: true },
+      { source: "/listing-category", destination: "/listings", permanent: true },
     ];
   },
 };
