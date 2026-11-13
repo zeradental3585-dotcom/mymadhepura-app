@@ -17,6 +17,18 @@ export async function generateStaticParams() {
   return all.map((l) => ({ slug: l.slug }));
 }
 
+function metaDescription(l: { name: string; category: string; address?: string; description?: string }): string {
+  const lead = `${l.name} – ${l.category} in Madhepura, Bihar.`;
+  const body = (l.description || "")
+    .split(/\n+/)
+    .map((s) => s.trim())
+    .filter((s) => s && s.toLowerCase() !== l.name.toLowerCase())
+    .join(" ")
+    .replace(/\s+/g, " ");
+  const text = body ? `${lead} ${body}` : `${lead}${l.address ? " " + l.address + "." : ""} Phone, address, hours and directions on myMadhepura.`;
+  return text.length > 157 ? text.slice(0, 154).replace(/\s+\S*$/, "") + "…" : text;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -26,12 +38,12 @@ export async function generateMetadata({
   const listing = await getListingBySlug(slug);
   if (!listing) return {};
   return {
-    title: listing.name,
-    description: listing.description || `${listing.name} - ${listing.category} in Madhepura, Bihar.`,
+    title: `${listing.name} – ${listing.category} in Madhepura, Bihar`,
+    description: metaDescription(listing),
     alternates: { canonical: `/listing/${listing.slug}` },
     openGraph: {
-      title: listing.name,
-      description: listing.description,
+      title: `${listing.name} – ${listing.category} in Madhepura`,
+      description: metaDescription(listing),
       // images intentionally omitted: the listing/[slug]/opengraph-image.tsx
       // file convention generates a branded, mobile-safe share card instead
       // of using the raw uploaded photo directly.
