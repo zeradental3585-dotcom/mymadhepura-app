@@ -3,10 +3,11 @@ import { SITE } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-    },
+    rules: [
+      { userAgent: "*", allow: "/" },
+      // Meta AI crawler was generating ~90% of all requests.
+      { userAgent: ["meta-externalagent", "meta-webindexer"], disallow: "/" },
+    ],
     sitemap: `${SITE.url}/sitemap.xml`,
   };
 }
