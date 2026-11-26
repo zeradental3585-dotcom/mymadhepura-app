@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { BlogPost } from "@/lib/blogPosts";
+import ShareButtons from "@/components/ShareButtons";
 
 export default function BlogPostLayout({
   post,
@@ -33,6 +34,7 @@ export default function BlogPostLayout({
       <article className="mt-8 space-y-5 leading-relaxed text-foreground/80 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-foreground [&_a]:text-brand [&_a]:font-medium [&_a:hover]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2">
         {children}
       </article>
+      <ShareButtons path={"/blog/" + post.slug + "/"} title={post.title} label="Share this guide" />
 
       <div className="mt-10 border-t border-black/5 pt-6">
         <Link href="/blog" className="text-sm font-semibold text-brand hover:underline">
