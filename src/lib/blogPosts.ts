@@ -82,6 +82,30 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "2026-11-08",
     category: "Education",
   },
+  {
+    slug: "singheshwar-sthan-madhepura-complete-guide",
+    title: "Singheshwar Sthan, Madhepura: History, Legend, How to Reach & Where to Stay",
+    description:
+      "Complete guide to Baba Singheshwar Sthan in Madhepura, Bihar: the legend of Shringi Rishi, Mahashivratri fair, how to reach, best time to visit and hotels nearby.",
+    date: "2026-11-26",
+    category: "Pilgrimage",
+  },
+  {
+    slug: "best-hotels-in-madhepura-where-to-stay",
+    title: "Best Hotels in Madhepura: Where to Stay by Area (Town, Singheshwar, Bihariganj)",
+    description:
+      "Hotels, lodges and guest houses in Madhepura district grouped by area, with a booking checklist for travellers, families and pilgrims.",
+    date: "2026-11-26",
+    category: "Hotels & Stay",
+  },
+  {
+    slug: "where-to-stay-near-singheshwar-sthan",
+    title: "Where to Stay Near Singheshwar Sthan: Hotels in Singheshwar vs Madhepura Town",
+    description:
+      "Compare staying in Singheshwar and Madhepura town for a Baba Singheshwar Sthan visit, with a pilgrim booking checklist and FAQs.",
+    date: "2026-11-26",
+    category: "Hotels & Stay",
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
